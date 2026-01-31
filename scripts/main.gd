@@ -83,7 +83,7 @@ func load_level(levelname):
 		var fileTrans = FileAccess.open(str("user://saves/",levelname,".dat"), FileAccess.READ)
 		var contentTrans = fileTrans.get_as_text()
 		return content
-	else: return "user://saves/crashpad.dat"
+	else: return " KKKEKEEEEECECCCCKKKEEEEEEEEECCCCJJKKKEEEEECCCCICKKKKKKECECCCCCICJJJKKKEEECCCCCICKKKKKKEEECCCCCCCJJJJKKKKKKCEECCCKKKKKKKKKKCEEDDCJJJJJKKKKCCEECCCKKKKKKKKKCCEEECDKIIKKKKKKCCCEECCKIIKKKKKKCCEEEDCKIIKKKKKKCCEECCCKKKKKKEEEKCCCCCDJJJJKKKKKCCCCCDDKKKKKKKKKKCCDDDD"
 var tile = preload("res://tile.tscn")
   
 func spawnTile(pos,type,filename):
@@ -134,15 +134,22 @@ func create_level(choice):
 			await %LineEdit.text_submitted
 			choice = %LineEdit.text
 			enable_saveload = true
+		#putting up curtain (black screen)
+		Global.LockControls = true
+		for i in range(1,21):
+			FastDeathLoad.modulate = Color(0,0,0,(i/20.0))
+			await get_tree().create_timer(0.0001).timeout
+			
 		#fixing up the memory leak issue (you spawned tiles and never removed them???????) 
 		#Like every time a level was created an entire new set of 256 tiles were created. for every level load.
 		if get_node("tile"+str(255)):
 			for i in range(1,257):
 				get_node("tile"+str(i)).queue_free()
 		inc = 0
+		
 		flicker()
 		await get_tree().create_timer(.00001).timeout
-		var level = load_level(choice)
+		var level = await load_level(choice)
 		var pos = Vector2(8,8)
 		var stink_value = 0
 		var temp = ""
@@ -261,11 +268,66 @@ func create_level(choice):
 				spawnTile(pos,"Transition",choice)
 				pos.x += 16
 				Global.current_level[i-stink_value] = "U"
+			elif level.substr(i,1) == "1":
+				spawnTile(pos,"Gantry1","")
+				pos.x += 16
+				Global.current_level[i-stink_value] = "1"
+			elif level.substr(i,1) == "2":
+				spawnTile(pos,"GantryEnd1","")
+				pos.x += 16
+				Global.current_level[i-stink_value] = "2"
+			elif level.substr(i,1) == "3":
+				spawnTile(pos,"Gantry2","")
+				pos.x += 16
+				Global.current_level[i-stink_value] = "3"
+			elif level.substr(i,1) == "4":
+				spawnTile(pos,"GantryEnd2","")
+				pos.x += 16
+				Global.current_level[i-stink_value] = "4"
+			elif level.substr(i,1) == "5":
+				spawnTile(pos,"Gantry3","")
+				pos.x += 16
+				Global.current_level[i-stink_value] = "5"
+			elif level.substr(i,1) == "6":
+				spawnTile(pos,"GantryEnd3","")
+				pos.x += 16
+				Global.current_level[i-stink_value] = "6"
 			else: stink_value += 1
+		Global.gantry1start = []
+		Global.gantry1end = []
+		Global.gantry2start = []
+		Global.gantry2end = []
+		Global.gantry3start = []
+		Global.gantry3end = []
 		Global.updater = true
 		await get_tree().create_timer(.1).timeout
 		Global.updater = false
+		
+		#pulling back curtain (black screen)
+		FastPlayerLoad._ready()
+		await get_tree().create_timer(0.1).timeout
+		for ii in range(21,1,-1):
+			FastDeathLoad.modulate = Color(0,0,0,(ii/20.0))
+			await get_tree().create_timer(0.0001).timeout
+		FastDeathLoad.modulate = Color(0,0,0,0)
+		Global.LockControls = false
 			#print(i)
+		
+		#averages gantries
+		var ganx = 0.0
+		var gany = 0.0
+		for i in range(len(Global.gantry1start)):
+			ganx += Global.gantry1start[i].x
+			gany += Global.gantry1start[i].y
+		Global.gantry1startpos = Vector2((ganx/len(Global.gantry1start)),(gany/len(Global.gantry1start)))
+		for i in range(len(Global.gantry2start)):
+			ganx += Global.gantry2start[i].x
+			gany += Global.gantry2start[i].y
+		Global.gantry2startpos = Vector2((ganx/len(Global.gantry2start)),(gany/len(Global.gantry2start)))
+		for i in range(len(Global.gantry3start)):
+			ganx += Global.gantry3start[i].x
+			gany += Global.gantry3start[i].y
+		Global.gantry3startpos = Vector2((ganx/len(Global.gantry3start)),(gany/len(Global.gantry3start)))
 
 #hijacked the complier code to get dynamic level transitions. its a mess, but you didnt do it so <3
 var contentTrans = ""
@@ -324,9 +386,9 @@ func _process(delta: float) -> void:
 		if Global.TileType > 0:
 			Global.TileType -= 1
 		else:
-			Global.TileType = 18
+			Global.TileType = 24
 	elif Input.is_action_just_pressed("mouse_middle") and not Input.is_action_pressed("key_ctrl"):
-		if Global.TileType < 18:
+		if Global.TileType < 24:
 			Global.TileType += 1
 		else:
 			Global.TileType = 0
@@ -337,9 +399,62 @@ func _process(delta: float) -> void:
 	if Input.is_action_just_pressed("key_L"):
 		save_level(compile())
 	if Input.is_action_just_pressed("key_R"):
+		Global.gantry1start = []
+		Global.gantry1end = []
 		Global.updater = true
 		await get_tree().create_timer(.0001).timeout
 		Global.updater = false
+		var ganx = 0.0
+		var gany = 0.0
+		for i in range(len(Global.gantry1start)):
+			ganx += Global.gantry1start[i].x
+			gany += Global.gantry1start[i].y
+		Global.gantry1startpos = Vector2((ganx/len(Global.gantry1start)),(gany/len(Global.gantry1start)))
+		#print(Global.gantry1startpos,"waaw")
+		ganx = 0.0
+		gany = 0.0
+		for i in range(len(Global.gantry1end)):
+			ganx += Global.gantry1end[i].x
+			gany += Global.gantry1end[i].y
+		Global.gantry1endpos = Vector2((ganx/len(Global.gantry1end)),(gany/len(Global.gantry1end)))
+		ganx = 0.0
+		gany = 0.0
+		for i in range(len(Global.gantry2start)):
+			ganx += Global.gantry2start[i].x
+			gany += Global.gantry2start[i].y
+		Global.gantry2startpos = Vector2((ganx/len(Global.gantry2start)),(gany/len(Global.gantry2start)))
+		ganx = 0.0
+		gany = 0.0
+		for i in range(len(Global.gantry2end)):
+			ganx += Global.gantry2end[i].x
+			gany += Global.gantry2end[i].y
+		Global.gantry2endpos = Vector2((ganx/len(Global.gantry2end)),(gany/len(Global.gantry2end)))
+		ganx = 0.0
+		gany = 0.0
+		for i in range(len(Global.gantry3start)):
+			ganx += Global.gantry3start[i].x
+			gany += Global.gantry3start[i].y
+		Global.gantry3startpos = Vector2((ganx/len(Global.gantry3start)),(gany/len(Global.gantry3start)))
+		ganx = 0.0
+		gany = 0.0
+		for i in range(len(Global.gantry3end)):
+			ganx += Global.gantry3end[i].x
+			gany += Global.gantry3end[i].y
+		Global.gantry3endpos = Vector2((ganx/len(Global.gantry3end)),(gany/len(Global.gantry3end)))
+	if 1 in Global.what_a_moth_makes.values():
+		Global.massive_moth = true
+	else:
+		Global.massive_moth = false
+	if 1 in Global.what_a_moth_makes2.values():
+		Global.massive_moth2 = true
+	else:
+		Global.massive_moth2 = false
+	if 1 in Global.what_a_moth_makes3.values():
+		Global.massive_moth3 = true
+	else:
+		Global.massive_moth3 = false
+	#print(Global.what_a_moth_makes)
+		
 		#save_level(cur_level, "quicksave")
 
 func _on_line_edit_text_submitted(new_text: String) -> void:

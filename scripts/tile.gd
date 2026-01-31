@@ -6,13 +6,18 @@ var increment : int
 var TransitionToOverride : String
 var nightmare = false
 #thankfully quiv has turned the nightmares off, or else this would be a lot easier to sleep to
+var moth_to_lamp = false
+var initialpos : Vector2
+var weesnaw = false
+var finalpos = Vector2(99,99)
 
 signal DeathTolls
 signal NextLevel(LevelToTransition)
 var TransitionTo = "base"
 var VariantRemember = "DEV"
-var SolidList = ["Atrium","City","Construction","Luxury","Evil","DEV","Hedge"]
-var BackgroundList = ["Transition","empty","bg","Glass","AtriumTrans","CityTrans","ConstructionTrans","LuxuryTrans","HedgeRoots","DeathAtrium","DeathCity","DeathConstruction","DeathLuxury","DeathEvil","DeathDEV"]
+var SolidList = ["Atrium","City","Construction","Luxury","Evil","DEV","Hedge", "Gantry1", "Gantry2","Gantry3"]
+var BackgroundList = ["Transition","empty","bg","Glass","AtriumTrans","CityTrans","ConstructionTrans","LuxuryTrans","HedgeRoots","DeathAtrium","DeathCity","DeathConstruction","DeathLuxury","DeathEvil","DeathDEV", "GantryEnd1","GantryEnd2","
+"]
 var frame = 0
 
 var patternFull = ""
@@ -58,7 +63,28 @@ func update():
 				BL += i
 			if iterator == 8:
 				BR += i
-	
+		if variant == "Gantry1":
+			Global.gantry1start.append(position)
+			print(Global.gantry1start)
+			top_level = true
+		if variant == "GantryEnd1":
+			Global.gantry1end.append(position)
+			#print(Global.gantry1end[0].x)
+			print(Global.gantry1end)
+		if variant == "Gantry2":
+			Global.gantry2start.append(position)
+			print(Global.gantry2start)
+			top_level = true
+		if variant == "GantryEnd2":
+			Global.gantry2end.append(position)
+		if variant == "Gantry3":
+			Global.gantry3start.append(position)
+			print(Global.gantry3start)
+			top_level = true
+		if variant == "GantryEnd3":
+			Global.gantry3end.append(position)
+			#print(Global.gantry1end[0].x)
+			print(Global.gantry3end)
 	#tilestilestilestiles ugghhhhhhhhhh <3
 	%tiletex.frame = 0
 	frame = 0
@@ -227,6 +253,7 @@ func update():
 		if BL == "S" and BR == "S":
 			%tiletex.frame = 46
 			frame = 46
+	initialpos = position
 #never ready
 func _ready() -> void:
 	if not TransitionToOverride == "":
@@ -318,12 +345,43 @@ func _process(delta: float) -> void:
 			Global.current_level[increment] = "U"
 			#you have to type it for every transition tile placed. womp womp
 			getTheFriggenUhHmmTransitionToNameThingyOrSomethingOfTheLikeIReallyDontKnowLMAOButItllWorkIKnowItISwearIKnowIt()
+		#gahn treeahs
+		elif Global.TileType == 19:
+			variant = "Gantry1"
+			Global.current_level[increment] = "1"
+		elif Global.TileType == 20:
+			variant = "GantryEnd1"
+			Global.current_level[increment] = "2"
+		elif Global.TileType == 21:
+			variant = "Gantry2"
+			Global.current_level[increment] = "3"
+		elif Global.TileType == 22:
+			variant = "GantryEnd2"
+			Global.current_level[increment] = "4"
+		elif Global.TileType == 23:
+			variant = "Gantry3"
+			Global.current_level[increment] = "5"
+		elif Global.TileType == 24:
+			variant = "GantryEnd3"
+			Global.current_level[increment] = "6"
 		#elif variant == "empty":
-		#	variant = "DEV"
-		#	Global.current_level[increment] = "B"
+		#variant = "DEV"
+		#Global.current_level[increment] = "B"
 	elif Input.is_action_just_pressed("mouse_right") and mouse_on == true and Input.is_action_pressed("key_ctrl") and not VariantRemember == "empty":
 		print(VariantRemember)
-		if VariantRemember == "DEV":
+		if VariantRemember == "Gantry1":
+			Global.TileType = 19
+		elif VariantRemember == "GantryEnd1":
+			Global.TileType = 20
+		elif VariantRemember == "Gantry2":
+			Global.TileType = 21
+		elif VariantRemember == "GantryEnd2":
+			Global.TileType = 22
+		elif VariantRemember == "Gantry3":
+			Global.TileType = 23
+		elif VariantRemember == "GantryEnd3":
+			Global.TileType = 24
+		elif VariantRemember == "DEV":
 			Global.TileType = 0
 		elif VariantRemember == "Hedge":
 			Global.TileType = 8
@@ -369,9 +427,34 @@ func _process(delta: float) -> void:
 			update()
 	if not Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and not Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
 		nightmare = false
-	Global.updater = true
-	await get_tree().create_timer(.0001).timeout
-	Global.updater = false
+	if weesnaw == false:
+		if variant == "Gantry1":
+			finalpos = Global.gantry1endpos - (Global.gantry1startpos - initialpos)
+		if variant == "Gantry2":
+			finalpos = Global.gantry2endpos - (Global.gantry2startpos - initialpos)
+		if variant == "Gantry3":
+			finalpos = Global.gantry3endpos - (Global.gantry3startpos - initialpos)
+	else: 
+		if variant == "Gantry1":
+			finalpos = Global.gantry1startpos - (Global.gantry1startpos - initialpos)
+		if variant == "Gantry2":
+			finalpos = Global.gantry2startpos - (Global.gantry2startpos - initialpos)
+		if variant == "Gantry3":
+			finalpos = Global.gantry3startpos - (Global.gantry3startpos - initialpos)
+	if Global.massive_moth == true and variant == "Gantry1":
+		position = position.move_toward(finalpos,.8)
+	if Global.massive_moth2 == true and variant == "Gantry2":
+		position = position.move_toward(finalpos,.8)
+	if Global.massive_moth3 == true and variant == "Gantry3":
+		position = position.move_toward(finalpos,.8)
+	if position == finalpos:
+		weesnaw = true
+	if position == initialpos:
+		weesnaw = false
+		
+	#Global.updater = true
+	#await get_tree().create_timer(.0001).timeout
+	#Global.updater = false
 	#if mouse_on == true:
 		#print("nine moillion")
 	#if variant == "DEV":
@@ -395,6 +478,15 @@ func _on_area_2d_body_entered(body: Node2D) -> void:
 		%tiletex.play(variant)
 		VariantRemember = variant
 		%tiletex.frame = frame
+	if body == get_parent().get_node("Spotlight"):
+		#moth_to_lamp = true
+		#Global.massive_moth = true
+		if variant == "Gantry1":
+			Global.what_a_moth_makes[increment] = 1
+		if variant == "Gantry2":
+			Global.what_a_moth_makes2[increment] = 1
+		if variant == "Gantry3":
+			Global.what_a_moth_makes3[increment] = 1
 	if body == get_parent().get_node("Player"):
 		if variant == "DeathCity" or variant == "DeathAtrium" or variant == "DeathDEV" or variant == "DeathLuxury" or variant == "DeathEvil":
 			emit_signal("DeathTolls")
@@ -408,6 +500,15 @@ func _on_area_2d_body_exited(body: Node2D) -> void:
 				%tiletex.play(variant)
 				VariantRemember = variant
 				%tiletex.frame = frame
+		if body == get_parent().get_node("Spotlight"):
+			#moth_to_lamp = false
+			#Global.massive_moth = false
+			if variant == "Gantry1":
+				Global.what_a_moth_makes[increment] = 0
+			if variant == "Gantry2":
+				Global.what_a_moth_makes2[increment] = 0
+			if variant == "Gantry3":
+				Global.what_a_moth_makes3[increment] = 0
 
 #Transition Block Stuffs
 func getTheFriggenUhHmmTransitionToNameThingyOrSomethingOfTheLikeIReallyDontKnowLMAOButItllWorkIKnowItISwearIKnowIt():
