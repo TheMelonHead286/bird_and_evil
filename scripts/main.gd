@@ -343,8 +343,13 @@ func compile():
 	contentTrans += "="
 	#print(cur_level)
 	return cur_level
+	
+	#fullscreen because chrome ctrl w is mean and awful and cruel
+func _input(event: InputEvent) -> void:
+	if event is InputEventMouseButton:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+	
 # Called when the node enters the scene tree for the first time.
-
 func _ready() -> void:
 	#$Spotlight.connect("cryagain", justperish) #only in the longest of nights (wait its day...)
 	$Player.connect("DeathTolls", justperish)
@@ -353,7 +358,7 @@ func _ready() -> void:
 	create_level("base")
 	await get_tree().create_timer(.5).timeout
 	Global.updater = true
-	await get_tree().create_timer(.0001).timeout
+	await get_tree().create_timer(.01).timeout
 	Global.updater = false
 	#print(current_level)
 

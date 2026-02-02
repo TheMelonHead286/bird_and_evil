@@ -80,7 +80,7 @@ func _physics_process(delta: float) -> void:
 		if Input.is_action_just_pressed("key_spacebar") and check_jump():
 			velocity.y = JUMP_VELOCITY
 			coyote = 60
-		if Input.is_action_just_pressed("key_W") and check_jump():
+		if Input.is_action_just_pressed("key_spacebar") and check_jump():
 			velocity.y = JUMP_VELOCITY
 			coyote = 60
 
