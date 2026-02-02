@@ -305,6 +305,7 @@ func create_level(choice):
 		
 		#pulling back curtain (black screen)
 		FastPlayerLoad._ready()
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
 		await get_tree().create_timer(0.1).timeout
 		for ii in range(21,1,-1):
 			FastDeathLoad.modulate = Color(0,0,0,(ii/20.0))
