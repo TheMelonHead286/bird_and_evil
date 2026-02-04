@@ -24,10 +24,8 @@
 [ext_resource type="PackedScene" uid="uid://5wrqxrikeitn" path="res://spotlight.tscn" id="23_d13ii"]
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_82xsv"]
-load_path = "res://.godot/imported/bg2.png-c84e1f359a072a374e0244328e4c1a55.ctex"
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_getpj"]
-load_path = "res://.godot/imported/background.png-0885851171e0b52b79e59dd88342df65.ctex"
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_vivmo"]
 animations = [{
